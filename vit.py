@@ -31,8 +31,8 @@ else:
     print("No GPU devices found.")
 IMG_SIZE = 384
 BATCH_SIZE = 8
-# base_dir = 'D:/Jiwoon/dataset/waper/origin/'
-base_dir = 'D:/Jiwoon/dataset/waper/cropped_300/'
+base_dir = 'D:/Jiwoon/dataset/waper/origin/'
+# base_dir = 'D:/Jiwoon/dataset/waper/cropped_300/'
 classes = ['bad', 'good']
 
 datagen = ImageDataGenerator(
@@ -43,7 +43,7 @@ datagen = ImageDataGenerator(
     horizontal_flip=True,
     vertical_flip=True,
     # fill_mode='reflect',
-    validation_split=0.25
+    validation_split=0.5
 )
 
 train_generator = datagen.flow_from_directory(
@@ -186,9 +186,9 @@ def build_feature_extractor():
     # feature_extractor = tfimm.create_model("vit_large_patch16_224", pretrained="timm", nb_classes=0)
     # feature_extractor = tfimm.create_model("vit_small_patch16_224", pretrained="timm", nb_classes=0)
 
-    # feature_extractor = tfimm.create_model("convnext_base", pretrained="timm",nb_classes=0)
+    feature_extractor = tfimm.create_model("convnext_base", pretrained="timm",nb_classes=0)
     # ##'swin_tiny_224', swin_small_224  swin_base_224  swin_base_384  swin_large_224  swin_large_384
-    feature_extractor = SwinTransformer('swin_large_384', include_top=False, pretrained=True)
+    # feature_extractor = SwinTransformer('swin_large_384', include_top=False, pretrained=True)
     # feature_extractor = vit.vit_b16(
     #         image_size=IMG_SIZE,
     #         activation='sigmoid',
@@ -262,7 +262,7 @@ def build_feature_extractor():
     x = feature_extractor(inputs)
     # x = tf.keras.layers.Dense(512, activation='relu')(x)
     # x = GaussianLayer()(x)
-    x = PlanarFlow(dim=x.shape[-1], name="flowflow")(x)
+    # x = PlanarFlow(dim=x.shape[-1], name="flowflow")(x)
     # x = keras.layers.Dense(128, activation='relu')(x)
     x = tf.keras.layers.Dropout(0.4)(x)
     outputs = tf.keras.layers.Dense(1, activation='sigmoid')(x)
@@ -279,7 +279,7 @@ def plot_metrics(history, metric, filepath):
     plt.xlabel('Epoch')
     plt.legend(['Train', 'Validation'], loc='upper left')
     plt.grid(True)
-    plt.savefig(os.path.join(filepath, f"{metric}.png"))
+    plt.savefig(os.path.join(filepath, f"origin_convnextbase_{metric}.png"))
     plt.close()
 
 
@@ -298,16 +298,16 @@ def plot_roc_auc(y_true, y_pred, filepath):
     plt.ylabel('True Positive Rate')
     plt.legend(loc="lower right")
     # plt.grid(True)
-    plt.savefig(os.path.join(filepath, "roc_auc_curve.png"))
+    plt.savefig(os.path.join(filepath, "origin_convnextbase_roc_auc_curve.png"))
     plt.close()
 
 def run_experiment():
     filepath = "./tmp/video_classifier"
     if not os.path.exists(filepath):
         os.makedirs(filepath)
-    # checkpoint = keras.callbacks.ModelCheckpoint(
-    #     filepath+'/gaussian_original_swin_large_384_transformer.h5', monitor="val_acc", save_weights_only=True, save_best_only=True, verbose=1, mode='max'
-    # )
+    checkpoint = keras.callbacks.ModelCheckpoint(
+        filepath+'/swin_large_384_transformer.h5', monitor="val_acc", save_weights_only=True, save_best_only=True, verbose=1, mode='max'
+    )
     early_stopping = keras.callbacks.EarlyStopping(
         monitor='val_acc', patience=20, restore_best_weights=True, verbose=1, mode='max'
     )
@@ -348,9 +348,9 @@ def run_experiment():
         validation_data=validation_generator,
         # validation_steps=factor * (validation_generator.samples // validation_generator.batch_size),
         epochs=200,
-        callbacks=[early_stopping, reduce_lr],
+        callbacks=[early_stopping, reduce_lr, checkpoint],
     )
-    model.load_weights(filepath+'/gaussian_original_swin_large_384_transformer.h5')
+    model.load_weights(filepath+'/swin_large_384_transformer.h5')
 
     y_true = validation_generator.classes
 
@@ -359,7 +359,7 @@ def run_experiment():
     end_time = time.time()  # predict 후 현재 시간 측정
     elapsed_time = end_time - start_time  # 걸린 시간 계산
 
-    print(f"Model prediction took {elapsed_time:.2f} seconds")
+    print(f"Batch : {BATCH_SIZE} Model prediction took {elapsed_time:.2f} seconds")
     plot_roc_auc(y_true, y_pred, filepath)
 
     plot_metrics(history, 'acc', filepath)
