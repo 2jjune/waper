@@ -16,6 +16,7 @@ from sklearn.metrics import roc_curve, auc, roc_auc_score
 import time
 from sklearn.mixture import GaussianMixture
 
+### 경고 무시 및 GPU 출력
 import warnings
 warnings.filterwarnings("ignore")
 print("Num GPUs Available: ", len(tf.config.experimental.list_physical_devices('GPU')))
@@ -29,12 +30,16 @@ if physical_devices:
     print(f"Selected Using GPU: {physical_devices[selected_gpu].name}")
 else:
     print("No GPU devices found.")
+
+### 파라미터 설정
 IMG_SIZE = 384
 BATCH_SIZE = 8
 base_dir = 'D:/Jiwoon/dataset/waper/origin/'
 # base_dir = 'D:/Jiwoon/dataset/waper/cropped_300/'
 classes = ['bad', 'good']
 
+
+### 이미지 AUGMENTATION
 datagen = ImageDataGenerator(
     rescale=1./255,
     # rotation_range=5,
@@ -46,6 +51,7 @@ datagen = ImageDataGenerator(
     validation_split=0.5
 )
 
+###TRAIN, VALIDATION DATA 설정
 train_generator = datagen.flow_from_directory(
     base_dir,
     target_size=(IMG_SIZE, IMG_SIZE),
@@ -63,7 +69,7 @@ validation_generator = datagen.flow_from_directory(
     subset='validation'
 )
 
-
+### 가우시안 레이어(사용안함)
 def patch_embedding_with_mobilenet(input_tensor, patch_size=16):
     # 1. 이미지를 16x16 패치로 분할
     patches = tf.image.extract_patches(
@@ -130,6 +136,9 @@ class PlanarFlow(tf.keras.layers.Layer):
         zwb = tf.matmul(z, self.w, transpose_b=True) + self.b
         f_z = z + u_hat * tf.tanh(zwb)
         return f_z
+### 여기까지 사용 안함
+
+###
 def build_feature_extractor():
     '''['ConvNeXtBase', 'ConvNeXtLarge', 'ConvNeXtSmall', 'ConvNeXtTiny', 'ConvNeXtXLarge',
     'DenseNet121', 'DenseNet169', 'DenseNet201', 'EfficientNetB0', 'EfficientNetB1', 'EfficientNetB2',
@@ -183,12 +192,19 @@ def build_feature_extractor():
     #  vit_small_patch16_224      vit_small_patch32_224   vit_tiny_patch16_224
     #   vit_tiny_patch16_384    vit_large_patch32_384   vit_small_patch16_384   vit_small_patch32_384
     # convnext_tiny  convnext_base  convnext_large  convnext_small  convnext_base_in22k  convnext_xlarge_in22k  convnext_xlarge_in22ft1k
-    # feature_extractor = tfimm.create_model("vit_large_patch16_224", pretrained="timm", nb_classes=0)
-    # feature_extractor = tfimm.create_model("vit_small_patch16_224", pretrained="timm", nb_classes=0)
 
+
+    ###---------------------------------VIT LARGE-------------------
+    # feature_extractor = tfimm.create_model("vit_large_patch16_224", pretrained="timm", nb_classes=0)
+    ###---------------------------------VIT SMALL-------------------
+    # feature_extractor = tfimm.create_model("vit_small_patch16_224", pretrained="timm", nb_classes=0)
+    ###---------------------------------CONVNEXT BASE-------------------
     feature_extractor = tfimm.create_model("convnext_base", pretrained="timm",nb_classes=0)
     # ##'swin_tiny_224', swin_small_224  swin_base_224  swin_base_384  swin_large_224  swin_large_384
+    ###---------------------------------SWIN LARGE-------------------
     # feature_extractor = SwinTransformer('swin_large_384', include_top=False, pretrained=True)
+
+    ### TENSORFLOW VIT LOAD 함수(사용안함)
     # feature_extractor = vit.vit_b16(
     #         image_size=IMG_SIZE,
     #         activation='sigmoid',
@@ -198,67 +214,12 @@ def build_feature_extractor():
     #         classes=1)
     # feature_extractor.summary()
 
-
-    # dummy_input = tf.random.normal(shape=(1,384,384,3))  # 예를 들어 (1, 224, 224, 3)과 같은 형상
-    # # 레이어에 더미 데이터 전달
-    # _ = feature_extractor(dummy_input)
-    # first_layer = feature_extractor.layers[2]
-    # print('*'*100)
-    # print(type(first_layer))
-
-    # kernel_shape = first_layer.weights[0].shape
-    # input_channels = kernel_shape[-2]
-    # output_channels = kernel_shape[-1]
-
-    # first_layer_output = first_layer(dummy_input)
-    # config = first_layer.get_config()
-    # print("Kernel size:", config["kernel_size"])
-    # print("Strides:", config["strides"])
-    # print("Padding:", config["padding"])
-    # print("Activation:", config["activation"])
-    # 입력 및 출력 형상 출력
-    # print("First Layer Input Shape:", dummy_input.shape)
-    # print("First Layer Output Shape:", first_layer_output.shape)
-    # #---------------------------------------------
-    # # 입력 및 출력 형상 출력
-    # print("First Layer Input Channels:", input_channels)
-    # print("First Layer Output Channels:", output_channels)
-    #
-    # print("First Layer Name:", first_layer.name)
-    # print("Input Shape:", first_layer.input_shape)
-    # print("Output Shape:", first_layer.output_shape)
-    # print("Config:", first_layer.get_config())
-    # print('*'*100)
-
-    # feature_extractor = vit.vit_b16(
-    #     image_size=IMG_SIZE,
-    #     activation='sigmoid',
-    #     pretrained=True,
-    #     include_top=False,
-    #     pretrained_top=False,
-    #     classes=1)
-    # mobilenet = tf.keras.applications.MobileNetV2(input_shape=(IMG_SIZE, IMG_SIZE, 3), include_top=False, weights='imagenet')
-
+    ### 각 레이어 TRAIN FALSE 설정
     for layer in feature_extractor.layers:
         layer.trainable = False
-    # --------------------mobilenet+vit 할라고 했던거
-    # new_layers = []
-    #
-    # for layer in feature_extractor.layers:
-    #     if layer.name == "embedding":  # 패치 임베딩 레이어의 이름
-    #         print(layer.output_shape,layer.output_shape,layer.output_shape,layer.output_shape)
-    #         # new_layer = patch_embedding_with_mobilenet(layer.output_shape)
-    #         new_layer = lambda tensor: patch_embedding_with_mobilenet(tensor)
-    #     else:
-    #         new_layer = layer.__class__.from_config(layer.get_config())
-    #     new_layers.append(new_layer)
-    #
-    # x = inputs
-    # for layer in new_layers:
-    #     x = layer(x)
-    #----------------------------------------
+
+    #----------------모델 생성------------------------
     inputs = keras.Input((IMG_SIZE, IMG_SIZE, 3))
-    # preprocessed = preprocess_input(inputs)
     x = feature_extractor(inputs)
     # x = tf.keras.layers.Dense(512, activation='relu')(x)
     # x = GaussianLayer()(x)
@@ -269,6 +230,7 @@ def build_feature_extractor():
     # print(99999999999999999999999999,outputs.shape)
     return keras.Model(inputs, outputs, name="waper_model")
 
+### 각 평가지표(ACC, LOSS 등) 그래프 저장
 def plot_metrics(history, metric, filepath):
     # Plot training & validation metric values
     plt.figure(figsize=(10, 6))
@@ -282,7 +244,7 @@ def plot_metrics(history, metric, filepath):
     plt.savefig(os.path.join(filepath, f"origin_convnextbase_{metric}.png"))
     plt.close()
 
-
+### ROCAUC 그래프 저장
 def plot_roc_auc(y_true, y_pred, filepath):
     fpr, tpr, thresholds = roc_curve(y_true, y_pred)
     # roc_auc = auc(fpr, tpr)
@@ -301,10 +263,14 @@ def plot_roc_auc(y_true, y_pred, filepath):
     plt.savefig(os.path.join(filepath, "origin_convnextbase_roc_auc_curve.png"))
     plt.close()
 
+
+### 학습 파라미터 설정 및 학습, 검증
 def run_experiment():
     filepath = "./tmp/video_classifier"
-    if not os.path.exists(filepath):
+    if not os.path.exists(filepath):#저장 경로 설정
         os.makedirs(filepath)
+
+    ### CALLBACK 함수 설정
     checkpoint = keras.callbacks.ModelCheckpoint(
         filepath+'/swin_large_384_transformer.h5', monitor="val_acc", save_weights_only=True, save_best_only=True, verbose=1, mode='max'
     )
@@ -315,11 +281,14 @@ def run_experiment():
     reduce_lr = keras.callbacks.ReduceLROnPlateau(
         monitor='val_acc', factor=0.1, patience=15, min_lr=1e-6, verbose=0, mode='max'
     )
+    #-------------------
 
-    model = build_feature_extractor()
+    model = build_feature_extractor()# 모델 불러오기
     model.summary()
     for layer in model.layers:
         print(layer.name)
+
+    # 학습 파라미터 설정
     learning_rate = 1e-4
     weight_decay = 0.0001
     optimizer = tfa.optimizers.AdamW(
@@ -328,50 +297,45 @@ def run_experiment():
     model.compile(
         optimizer='adam',
         # optimizer=optimizer,
-        # loss=keras.losses.SparseCategoricalCrossentropy(from_logits=True),
         # loss=tf.keras.losses.BinaryCrossentropy(from_logits=True),
         loss=BinaryFocalLoss(gamma=2),
         metrics=[
-            # keras.metrics.SparseCategoricalAccuracy(name="accuracy"),
-            # keras.metrics.SparseTopKCategoricalAccuracy(5, name="top-5-accuracy"),
             tf.keras.metrics.BinaryAccuracy(name="acc"),
             tf.keras.metrics.AUC(name="auc"),
             tfa.metrics.F1Score(num_classes=1, threshold=0.5),
         ],
     )
-    factor = 2
+
+    ##학습
     history = model.fit(
         train_generator,
-        # steps_per_epoch=factor * (train_generator.samples // train_generator.batch_size),
-        # train_labels,
-        # validation_split=0.15,
         validation_data=validation_generator,
-        # validation_steps=factor * (validation_generator.samples // validation_generator.batch_size),
         epochs=200,
         callbacks=[early_stopping, reduce_lr, checkpoint],
     )
+
+    # 저장된 모델 불러오기
     model.load_weights(filepath+'/swin_large_384_transformer.h5')
 
-    y_true = validation_generator.classes
+    y_true = validation_generator.classes #정답값 뽑아오기
 
     start_time = time.time()
     y_pred = model.predict(validation_generator).ravel()
     end_time = time.time()  # predict 후 현재 시간 측정
     elapsed_time = end_time - start_time  # 걸린 시간 계산
 
-    print(f"Batch : {BATCH_SIZE} Model prediction took {elapsed_time:.2f} seconds")
-    plot_roc_auc(y_true, y_pred, filepath)
+    print(f"Batch : {BATCH_SIZE} Model prediction took {elapsed_time:.2f} seconds") # 모든 검증 데이터셋을 PREDICT하는데 걸린 시간
+    plot_roc_auc(y_true, y_pred, filepath)# ROCAUC그래프 저장
 
-    plot_metrics(history, 'acc', filepath)
-    plot_metrics(history, 'loss', filepath)
-    plot_metrics(history, 'auc', filepath)
-    plot_metrics(history, 'f1_score', filepath)
-    _, accuracy, auc, f1 = model.evaluate(validation_generator)
+    plot_metrics(history, 'acc', filepath)# ACC 그래프 저장
+    plot_metrics(history, 'loss', filepath)# LOSS 그래프 저장
+    plot_metrics(history, 'auc', filepath)# AUC 그래프 저장
+    plot_metrics(history, 'f1_score', filepath)# F1 그래프 저장
+    _, accuracy, auc, f1 = model.evaluate(validation_generator)# 모델 EVALUATE
     print(f"Test accuracy: {round(accuracy * 100, 2)}%")
     print(f"Test AUC: {round(auc, 4)}")
     print(f"Test f1_score: {np.round(f1, 4)}")
-run_experiment()
-# feature_extractor = build_feature_extractor()
 
-
+if __name__=="__main__":
+    run_experiment()
 
