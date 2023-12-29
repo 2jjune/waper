@@ -1,14 +1,14 @@
 # waper
 waper crack detection
-1. make dataset
--data
-  -- bad
-     img1
-     img2
-     ...
-  -- good
-     img1
-     img2
+1. make dataset\n
+-data\n
+  -- bad\n
+     img1\n
+     img2\n
+     ...\n
+  -- good\n
+     img1\n
+     img2\n
      ...
 2. create anaconda virtual environment and activate
 3. git clone https://github.com/2jjune/waper.git
