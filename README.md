@@ -10,11 +10,14 @@ waper crack detection
 &nbsp;&nbsp;&nbsp;     img1  
 &nbsp;&nbsp;&nbsp;     img2  
 &nbsp;&nbsp;&nbsp;     ...
-2. create anaconda virtual environment and activate
+2. create anaconda virtual environment and activate  
+&nbsp; conda create -n ENV_NAME python==3.9.*  
+&nbsp; conda activate ENV_NAME
 3. git clone https://github.com/2jjune/waper.git
-4. git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF     
-5. run code "pip install -r requirements.txt"
-5. run "vit.py" or "window_vit.py"  
+4. cd waper
+5. git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF     
+6. run code "pip install -r requirements.txt"
+7. run "vit.py" or "window_vit.py"  
 run example 'python vit.py --img_size 224 --batch 8 --validate_rate 0.25 --data_dir "your dataset dir" --model_type "vit_small"'  
 NOTE(img_size = 224(vit) or 384(swin, convnext), model_type = vit_small, vit_large, convnext, swin)
 
