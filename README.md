@@ -10,8 +10,11 @@ waper crack detection
      img1
      img2
      ...
-2. git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF     
-3. run "vit.py" or "window_vit.py"
+2. create anaconda virtual environment and activate
+3. git clone https://github.com/2jjune/waper.git
+4. git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF     
+5. run code "pip install -r requirements.txt"
+5. run "vit.py" or "window_vit.py"
 
 In code:
 1. Check the GPU is available and ignore warning
