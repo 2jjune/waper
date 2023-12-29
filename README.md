@@ -15,16 +15,17 @@ waper crack detection
 4. git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF     
 5. run code "pip install -r requirements.txt"
 5. run "vit.py" or "window_vit.py"
+run example 'python vit.py --img_size 224 --batch 8 --validate_rate 0.25 --data_dir "your dataset dir" --model_type "vit_small"'
+NOTE(img_size = 224(vit) or 384(swin, convnext), model_type = vit_small, vit_large, convnext, swin)
 
 In code:
 1. Check the GPU is available and ignore warning
-2. set parameter(img size, dir, etc..)
-3. make imagedatagenerator(split train, validation)
-4. build model(vit or swin or convnext)
-5. make plot metrics function
-6. set save directory
-7. set callback function
-8. load model that made at 4. and set learning parameter
-9. train and save
-10. load saved model and validate, test, measure prediction time, save metrics graphs
+2. make imagedatagenerator(split train, validation)
+3. set saving directory
+4. set callback function
+5. build model(vit or swin or convnext)
+6. set learning parameters
+7. train and save model
+8. save metrics graph
+9. load saved model and validate, test, measure prediction time, save metrics graphs
 
