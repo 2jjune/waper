@@ -2,14 +2,14 @@
 waper crack detection
 1. make dataset  
 -data  
-  -- bad  
-     img1  
-     img2  
-     ...  
-  -- good  
-     img1  
-     img2  
-     ...
+&nbsp;  -- bad  
+&nbsp;&nbsp;     img1  
+&nbsp;&nbsp;     img2  
+&nbsp;&nbsp;     ...  
+&nbsp;  -- good  
+&nbsp;&nbsp;     img1  
+&nbsp;&nbsp;     img2  
+&nbsp;&nbsp;     ...
 2. create anaconda virtual environment and activate
 3. git clone https://github.com/2jjune/waper.git
 4. git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF     
