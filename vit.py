@@ -15,6 +15,7 @@ from Swin_Transformer_TF.swintransformer import SwinTransformer
 from sklearn.metrics import roc_curve, auc, roc_auc_score
 import time
 from sklearn.mixture import GaussianMixture
+import argparse
 
 ### 경고 무시 및 GPU 출력
 import warnings
@@ -30,44 +31,6 @@ if physical_devices:
     print(f"Selected Using GPU: {physical_devices[selected_gpu].name}")
 else:
     print("No GPU devices found.")
-
-### 파라미터 설정
-IMG_SIZE = 384
-BATCH_SIZE = 8
-base_dir = 'D:/Jiwoon/dataset/waper/origin/'
-# base_dir = 'D:/Jiwoon/dataset/waper/cropped_300/'
-classes = ['bad', 'good']
-
-
-### 이미지 AUGMENTATION
-datagen = ImageDataGenerator(
-    rescale=1./255,
-    # rotation_range=5,
-    # width_shift_range=0.2,
-    # height_shift_range=0.2,
-    horizontal_flip=True,
-    vertical_flip=True,
-    # fill_mode='reflect',
-    validation_split=0.5
-)
-
-###TRAIN, VALIDATION DATA 설정
-train_generator = datagen.flow_from_directory(
-    base_dir,
-    target_size=(IMG_SIZE, IMG_SIZE),
-    batch_size=BATCH_SIZE,
-    class_mode='binary',
-    subset='training'
-)
-
-validation_generator = datagen.flow_from_directory(
-    base_dir,
-    target_size=(IMG_SIZE, IMG_SIZE),
-    batch_size=BATCH_SIZE,
-    class_mode='binary',
-    shuffle=False,
-    subset='validation'
-)
 
 ### 가우시안 레이어(사용안함)
 def patch_embedding_with_mobilenet(input_tensor, patch_size=16):
@@ -102,7 +65,6 @@ def patch_embedding_with_mobilenet(input_tensor, patch_size=16):
 
 
     return embedding_tensor
-
 class GaussianLayer(keras.layers.Layer):
     def __init__(self, **kwargs):
         super(GaussianLayer, self).__init__(**kwargs)
@@ -181,7 +143,6 @@ def build_feature_extractor():
         'vit_small_r26_s32_384', 'vit_tiny_patch16_224', 'vit_tiny_patch16_224_in21k', 'vit_tiny_patch16_384', 
         'vit_tiny_r_s16_p8_224', 'vit_tiny_r_s16_p8_224_in21k', 'vit_tiny_r_s16_p8_384'
     '''
-
     '''
     'convnext_base', 'convnext_base_384_in22ft1k', 'convnext_base_in22ft1k', 'convnext_base_in22k', 
     'convnext_large', 'convnext_large_384_in22ft1k', 'convnext_large_in22ft1k', 'convnext_large_in22k',
@@ -193,16 +154,16 @@ def build_feature_extractor():
     #   vit_tiny_patch16_384    vit_large_patch32_384   vit_small_patch16_384   vit_small_patch32_384
     # convnext_tiny  convnext_base  convnext_large  convnext_small  convnext_base_in22k  convnext_xlarge_in22k  convnext_xlarge_in22ft1k
 
-
-    ###---------------------------------VIT LARGE-------------------
-    # feature_extractor = tfimm.create_model("vit_large_patch16_224", pretrained="timm", nb_classes=0)
-    ###---------------------------------VIT SMALL-------------------
-    # feature_extractor = tfimm.create_model("vit_small_patch16_224", pretrained="timm", nb_classes=0)
-    ###---------------------------------CONVNEXT BASE-------------------
-    feature_extractor = tfimm.create_model("convnext_base", pretrained="timm",nb_classes=0)
-    # ##'swin_tiny_224', swin_small_224  swin_base_224  swin_base_384  swin_large_224  swin_large_384
-    ###---------------------------------SWIN LARGE-------------------
-    # feature_extractor = SwinTransformer('swin_large_384', include_top=False, pretrained=True)
+    if model_type == "vit_large":
+        feature_extractor = tfimm.create_model("vit_large_patch16_224", pretrained="timm", nb_classes=0)
+    elif model_type == "vit_small":
+        feature_extractor = tfimm.create_model("vit_small_patch16_224", pretrained="timm", nb_classes=0)
+    elif model_type == "convnext":
+        feature_extractor = tfimm.create_model("convnext_base", pretrained="timm", nb_classes=0)
+    elif model_type == "swin":
+        feature_extractor = SwinTransformer('swin_large_384', include_top=False, pretrained=True)
+    else:
+        raise ValueError("Invalid model type selected.")
 
     ### TENSORFLOW VIT LOAD 함수(사용안함)
     # feature_extractor = vit.vit_b16(
@@ -266,13 +227,42 @@ def plot_roc_auc(y_true, y_pred, filepath):
 
 ### 학습 파라미터 설정 및 학습, 검증
 def run_experiment():
+    ### 이미지 AUGMENTATION
+    datagen = ImageDataGenerator(
+        rescale=1. / 255,
+        # rotation_range=5,
+        # width_shift_range=0.2,
+        # height_shift_range=0.2,
+        horizontal_flip=True,
+        vertical_flip=True,
+        # fill_mode='reflect',
+        validation_split=validation_rate
+    )
+
+    ###TRAIN, VALIDATION DATA 설정
+    train_generator = datagen.flow_from_directory(
+        base_dir,
+        target_size=(IMG_SIZE, IMG_SIZE),
+        batch_size=BATCH_SIZE,
+        class_mode='binary',
+        subset='training'
+    )
+    validation_generator = datagen.flow_from_directory(
+        base_dir,
+        target_size=(IMG_SIZE, IMG_SIZE),
+        batch_size=BATCH_SIZE,
+        class_mode='binary',
+        shuffle=False,
+        subset='validation'
+    )
+
     filepath = "./tmp/video_classifier"
     if not os.path.exists(filepath):#저장 경로 설정
         os.makedirs(filepath)
 
     ### CALLBACK 함수 설정
     checkpoint = keras.callbacks.ModelCheckpoint(
-        filepath+'/swin_large_384_transformer.h5', monitor="val_acc", save_weights_only=True, save_best_only=True, verbose=1, mode='max'
+        filepath+'/tttswin_large_384_transformer.h5', monitor="val_acc", save_weights_only=True, save_best_only=True, verbose=1, mode='max'
     )
     early_stopping = keras.callbacks.EarlyStopping(
         monitor='val_acc', patience=20, restore_best_weights=True, verbose=1, mode='max'
@@ -315,7 +305,7 @@ def run_experiment():
     )
 
     # 저장된 모델 불러오기
-    model.load_weights(filepath+'/swin_large_384_transformer.h5')
+    model.load_weights(filepath+'/tttswin_large_384_transformer.h5')
 
     y_true = validation_generator.classes #정답값 뽑아오기
 
@@ -337,5 +327,24 @@ def run_experiment():
     print(f"Test f1_score: {np.round(f1, 4)}")
 
 if __name__=="__main__":
+    # 명령줄 인수 파싱을 위한 파서 생성
+    parser = argparse.ArgumentParser(description="Run the VIT model training and evaluation.")
+    parser.add_argument("--img_size", type=int, default=224, help="Image size for the model.")
+    parser.add_argument("--batch", type=int, default=8, help="Batch size for training.")
+    parser.add_argument("--validate_rate", type=float, default=0.25, help="Batch size for training.")
+    parser.add_argument("--data_dir", type=str, default="./", help="Directory of the dataset.")
+    parser.add_argument("--model_type", type=str, default="vit_small", help="Type of the model to use.",
+                        choices=['vit_large', 'vit_small', 'convnext', 'swin'])
+
+    # 인수 파싱
+    args = parser.parse_args()
+
+    # 파싱된 인수를 변수에 할당
+    IMG_SIZE = args.img_size
+    BATCH_SIZE = args.batch
+    validation_rate = args.validate_rate
+    base_dir = args.data_dir
+    model_type = args.model_type
+
     run_experiment()
 
