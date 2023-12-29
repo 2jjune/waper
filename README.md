@@ -14,8 +14,8 @@ waper crack detection
 3. git clone https://github.com/2jjune/waper.git
 4. git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF     
 5. run code "pip install -r requirements.txt"
-5. run "vit.py" or "window_vit.py"
-run example 'python vit.py --img_size 224 --batch 8 --validate_rate 0.25 --data_dir "your dataset dir" --model_type "vit_small"'
+5. run "vit.py" or "window_vit.py"  
+run example 'python vit.py --img_size 224 --batch 8 --validate_rate 0.25 --data_dir "your dataset dir" --model_type "vit_small"'  
 NOTE(img_size = 224(vit) or 384(swin, convnext), model_type = vit_small, vit_large, convnext, swin)
 
 In code:
