@@ -2,7 +2,7 @@
 ## waper crack detection
 1. make dataset  
 ```
-:file_folder:dataset_directory
+:file_folder: dataset_directory
   ┣ :open_file_folder:bad
     ┣ image 1
     ┣ image 2
