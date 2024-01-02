@@ -1,14 +1,14 @@
 # waper
-##waper crack detection
+## waper crack detection
 1. make dataset  
 ```
-Ì∑ÇÔ∏èdataset_directory
-  ‚î£ Ì≥Çbad
+:Ì∑ÇÔ∏è:dataset_directory
+  ‚î£ :Ì≥Ç:bad
     ‚î£ image 1
     ‚î£ image 2
     ‚î£ image 3
     ‚î£ ...
-  ‚î£ Ì≥Çgood
+  ‚î£ :Ì≥Ç:good
     ‚î£ image 1
     ‚î£ image 2
     ‚î£ image 3
