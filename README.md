@@ -2,7 +2,7 @@
 ##waper crack detection
 1. make dataset  
 ```
-Ì≥¶dataset_directory
+Ì∑ÇÔ∏èdataset_directory
   ‚î£ Ì≥Çbad
     ‚î£ image 1
     ‚î£ image 2
