@@ -2,9 +2,9 @@
 ##waper crack detection
 1. make dataset  
 ```
->-data  
+> -data  
 >>  -- bad  
->>>    img1  
+>>>     img1  
 >>>     img2  
 >>>     ...  
 >>  -- good  
