@@ -2,13 +2,13 @@
 ## waper crack detection
 1. make dataset  
 ```
-:Ì∑ÇÔ∏è:dataset_directory
-  ‚î£ :Ì≥Ç:bad
+:file_folder:dataset_directory
+  ‚î£ :open_file_folder:bad
     ‚î£ image 1
     ‚î£ image 2
     ‚î£ image 3
     ‚î£ ...
-  ‚î£ :Ì≥Ç:good
+  ‚î£ :open_file_folder:good
     ‚î£ image 1
     ‚î£ image 2
     ‚î£ image 3
