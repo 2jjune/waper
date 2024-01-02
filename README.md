@@ -27,8 +27,9 @@ conda activate ENV_NAME
 ```python
 python vit.py --img_size 224 --batch 8 --validate_rate 0.25 --data_dir "your dataset dir" --model_type "vit_small"
 ```
-<span style="color:yellow">NOTE(img_size = 224(vit) or 384(swin, convnext), model_type = vit_small, vit_large, convnext, swin)</span>
-NOTE(Adjust the batch size and validation rate according to your computer specs and data.)
+_NOTE(img_size = 224(vit) or 384(swin, convnext), model_type = vit_small, vit_large, convnext, swin)_
+
+_NOTE(Adjust the batch size and validation rate according to your computer specs and data.)_
 ***
 
 In code:
