@@ -1,14 +1,14 @@
 # waper
-## waper crack detection
+### waper crack detection
 1. make dataset  
 ```
- :file_folder: dataset_directory
-  ┣ `:open_file_folder:` bad
+dataset_directory
+  ┣ bad
     ┣ image 1
     ┣ image 2
     ┣ image 3
     ┣ ...
-  ┣ :open_file_folder:good
+  ┣ good
     ┣ image 1
     ┣ image 2
     ┣ image 3
