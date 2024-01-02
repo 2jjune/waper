@@ -2,15 +2,17 @@
 ##waper crack detection
 1. make dataset  
 ```
-> -data  
->>  -- bad  
->>>     img1  
->>>     img2  
->>>     ...  
->>  -- good  
->>>     img1  
->>>     img2  
->>>     ...
+í³¦dataset_directory
+  â”£ í³‚bad
+    â”£ image 1
+    â”£ image 2
+    â”£ image 3
+    â”£ ...
+  â”£ í³‚good
+    â”£ image 1
+    â”£ image 2
+    â”£ image 3
+    â”£ ...
 ```
 2. create anaconda virtual environment and activate  
 ```python
@@ -22,11 +24,10 @@ conda activate ENV_NAME
 5. `git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF`
 6. `pip install -r requirements.txt`
 7. run `vit.py` or `window_vit.py`  
-run example
 ```python
 python vit.py --img_size 224 --batch 8 --validate_rate 0.25 --data_dir "your dataset dir" --model_type "vit_small"
 ```
-<br/>NOTE(img_size = 224(vit) or 384(swin, convnext), model_type = vit_small, vit_large, convnext, swin)
+NOTE(img_size = 224(vit) or 384(swin, convnext), model_type = vit_small, vit_large, convnext, swin)
 
 ***
 
