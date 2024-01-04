@@ -19,11 +19,12 @@ dataset_directory
 conda create -n ENV_NAME python==3.9.*  
 conda activate ENV_NAME
 ```
-3. `git clone https://github.com/2jjune/waper.git`
-4. `cd waper`
-5. `git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF`
-6. `pip install -r requirements.txt`
-7. run `vit.py` or `window_vit.py`  
+3. `conda install git` or `pip install git`
+4. `git clone https://github.com/2jjune/waper.git`
+5. `cd waper`
+6. `git clone https://github.com/rishigami/Swin-Transformer-TF.git Swin_Transformer_TF`
+7. `pip install -r requirements.txt`
+8. run `vit.py` or `window_vit.py`  
 ```python
 python vit.py --img_size 224 --batch 8 --validate_rate 0.25 --data_dir "your dataset dir" --model_type "vit_small"
 ```
